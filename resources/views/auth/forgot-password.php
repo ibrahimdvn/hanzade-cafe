@@ -123,7 +123,7 @@
                         <?php if (!empty($success)): ?>
                         <div class="alert alert-success">
                             <i class="fas fa-check-circle me-2"></i>
-                            <?php echo htmlspecialchars($success); ?>
+                            <?php echo $success; ?>
                         </div>
                         <?php endif; ?>
 

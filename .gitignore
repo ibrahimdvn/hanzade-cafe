@@ -44,6 +44,9 @@ temp/
 *.db
 *.sqlite
 
+# Mail configuration (contains sensitive data)
+config/mail.php
+
 # Compiled files
 *.com
 *.class
