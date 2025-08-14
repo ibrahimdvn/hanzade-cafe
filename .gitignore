@@ -1,0 +1,80 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+error_log
+access_log
+
+# Cache
+cache/
+tmp/
+temp/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Database files
+*.sql
+*.db
+*.sqlite
+
+# Compiled files
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# PHP specific
+*.php~
+*.php.bak
+composer.phar
+
+# XAMPP specific
+xampp/
+htdocs/temp/
+
+# Session files
+sessions/
+*.sess
+
+# Upload files (if any)
+uploads/
+public/uploads/
