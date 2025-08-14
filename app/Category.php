@@ -8,7 +8,13 @@ class Category {
     }
     
     public function getAll() {
-        $stmt = $this->conn->prepare("SELECT id, name, description, color FROM categories ORDER BY name ASC");
+        $stmt = $this->conn->prepare("
+            SELECT c.id, c.name, c.description, c.color, COUNT(p.id) as product_count 
+            FROM categories c 
+            LEFT JOIN products p ON c.id = p.category_id 
+            GROUP BY c.id, c.name, c.description, c.color 
+            ORDER BY c.name ASC
+        ");
         $stmt->execute();
         return $stmt->get_result();
     }

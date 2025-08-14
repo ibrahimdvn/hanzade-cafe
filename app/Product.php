@@ -143,4 +143,8 @@ class Product {
         $stmt->execute();
         return $stmt->get_result();
     }
+    
+    public function getConnection() {
+        return $this->conn;
+    }
 }

@@ -1,6 +1,10 @@
 <?php
+// Zaman dilimini ayarla
+date_default_timezone_set('Europe/Istanbul');
+
 require_once __DIR__ . '/../app/controllers/ProductController.php';
 require_once __DIR__ . '/../app/controllers/AuthController.php';
+require_once __DIR__ . '/../app/controllers/NotificationController.php';
 require_once __DIR__ . '/../app/middleware/Auth.php';
 
 // Simple routing
@@ -8,7 +12,11 @@ $action = $_GET['action'] ?? 'index';
 $id = $_GET['id'] ?? null;
 
 // Authentication gerektirmeyen route'lar
-$publicRoutes = ['login', 'register', 'forgot-password', 'reset-password']; 
+$publicRoutes = ['login', 'register', 'logout', 'forgot-password', 'reset-password']; 
+
+// Controller'ları oluştur
+$authController = new AuthController();
+$controller = null; // Varsayılan olarak null
 
 if (!in_array($action, $publicRoutes)) {
     // Authentication kontrolü
@@ -18,8 +26,6 @@ if (!in_array($action, $publicRoutes)) {
     }
     
     $controller = new ProductController();
-} else {
-    $authController = new AuthController();
 }
 
 try {
@@ -48,41 +54,100 @@ try {
             
         // Product routes (require authentication)
         case 'index':
-            $controller->index();
+            if ($controller) {
+                $controller->index();
+            } else {
+                http_response_code(403);
+                die("Access denied.");
+            }
             break;
         case 'update':
             if (!$id) {
                 http_response_code(400);
                 die("Product ID is required.");
             }
-            $controller->update((int)$id);
+            if ($controller) {
+                $controller->update((int)$id);
+            } else {
+                http_response_code(403);
+                die("Access denied.");
+            }
             break;
         case 'edit':
             if (!$id) {
                 http_response_code(400);
                 die("Product ID is required.");
             }
-            $controller->edit((int)$id);
+            if ($controller) {
+                $controller->edit((int)$id);
+            } else {
+                http_response_code(403);
+                die("Access denied.");
+            }
             break;
         case 'add':
-            $controller->add();
+            if ($controller) {
+                $controller->add();
+            } else {
+                http_response_code(403);
+                die("Access denied.");
+            }
             break;
         case 'delete':
             if (!$id) {
                 http_response_code(400);
                 die("Product ID is required.");
             }
-            $controller->delete((int)$id);
+            if ($controller) {
+                $controller->delete((int)$id);
+            } else {
+                http_response_code(403);
+                die("Access denied.");
+            }
             break;
         case 'category':
             if (!$id) {
                 http_response_code(400);
                 die("Category ID is required.");
             }
-            $controller->category((int)$id);
+            if ($controller) {
+                $controller->category((int)$id);
+            } else {
+                http_response_code(403);
+                die("Access denied.");
+            }
             break;
         case 'search':
-            $controller->search();
+            if ($controller) {
+                $controller->search();
+            } else {
+                http_response_code(403);
+                die("Access denied.");
+            }
+            break;
+        case 'notifications':
+            $notificationController = new NotificationController();
+            $notificationController->index();
+            break;
+        case 'mark-as-read':
+            $notificationController = new NotificationController();
+            $notificationController->markAsRead();
+            break;
+        case 'mark-all-as-read':
+            $notificationController = new NotificationController();
+            $notificationController->markAllAsRead();
+            break;
+        case 'get-unread-count':
+            $notificationController = new NotificationController();
+            $notificationController->getUnreadCount();
+            break;
+        case 'delete-notification':
+            $notificationController = new NotificationController();
+            $notificationController->deleteNotification();
+            break;
+        case 'delete-all-notifications':
+            $notificationController = new NotificationController();
+            $notificationController->deleteAllNotifications();
             break;
         default:
             http_response_code(404);

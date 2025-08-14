@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Hanzade Cafe - Stok Yönetimi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="favicon-32x32.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -38,10 +39,19 @@
         .stock-ok {
             border-left: 4px solid #28a745;
         }
-        .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
+                 .stats-card {
+             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             color: white;
+         }
+         
+         .low-stock-card {
+             transition: all 0.3s ease;
+         }
+         
+         .low-stock-card:hover {
+             transform: translateY(-5px);
+             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+         }
         .category-badge {
             font-size: 0.75rem;
             padding: 0.25rem 0.5rem;
@@ -313,9 +323,23 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
         <div class="container">
             <a class="navbar-brand" href="index.php">
-                <i class="fas fa-coffee me-2"></i>Hanzade Cafe
+                <img src="favicon-32x32.png" alt="Hanzade Cafe" class="me-2" style="width: 24px; height: 24px;">Hanzade Cafe
             </a>
             <div class="navbar-nav ms-auto">
+                <?php if (Auth::isAdmin()): ?>
+                <div class="nav-item">
+                    <a class="nav-link" href="index.php?action=notifications">
+                        <i class="fas fa-bell me-1"></i>Bildirimler
+                        <?php 
+                        $notification = new Notification();
+                        $unreadCount = $notification->getUnreadCount();
+                        if ($unreadCount > 0): 
+                        ?>
+                        <span class="badge bg-danger ms-1"><?php echo $unreadCount; ?></span>
+                        <?php endif; ?>
+                    </a>
+                </div>
+                <?php endif; ?>
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-user-circle me-1"></i><?php echo htmlspecialchars(Auth::name()); ?>
@@ -349,15 +373,15 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
-                    <div class="card-body text-center">
-                        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
-                        <h5 class="card-title">Düşük Stok</h5>
-                        <h3 class="mb-0"><?php echo $lowStockProducts->num_rows; ?></h3>
-                    </div>
-                </div>
-            </div>
+                         <div class="col-md-3">
+                 <div class="card low-stock-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; cursor: pointer;" onclick="showLowStockModal()">
+                     <div class="card-body text-center">
+                         <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                         <h5 class="card-title">Düşük Stok</h5>
+                         <h3 class="mb-0"><?php echo $lowStockProducts->num_rows; ?></h3>
+                     </div>
+                 </div>
+             </div>
             <div class="col-md-3">
                 <div class="card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
                     <div class="card-body text-center">
@@ -403,12 +427,14 @@
             <h6 class="mb-3"><i class="fas fa-filter me-2"></i>Kategori Filtresi</h6>
             <a href="index.php" class="btn btn-outline-primary category-btn <?php echo !isset($_GET['category']) ? 'active' : ''; ?>">
                 <i class="fas fa-list me-1"></i>Tümü
+                <span class="badge bg-secondary ms-1"><?php echo $products->num_rows; ?></span>
             </a>
                          <?php while ($cat = $categories->fetch_assoc()): ?>
              <a href="index.php?action=category&id=<?php echo $cat['id']; ?>" 
                 class="btn btn-outline-primary category-btn category-<?php echo strtolower(str_replace(' ', '-', $cat['name'])); ?>"
                 style="border-color: <?php echo $cat['color']; ?>; color: <?php echo $cat['color']; ?>;">
                  <i class="fas fa-tag me-1"></i><?php echo htmlspecialchars($cat['name']); ?>
+                 <span class="badge ms-1" style="background-color: <?php echo $cat['color']; ?>; color: white;"><?php echo $cat['product_count']; ?></span>
              </a>
              <?php endwhile; ?>
         </div>
@@ -504,48 +530,150 @@
         <?php endif; ?>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="deleteModalLabel">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Ürün Silme Onayı
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
-                        <h5>Bu ürünü silmek istediğinizden emin misiniz?</h5>
-                        <p class="text-muted">Bu işlem geri alınamaz.</p>
-                    </div>
-                    <div class="alert alert-warning">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong id="productNameToDelete"></strong> adlı ürün kalıcı olarak silinecektir.
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>İptal
-                    </button>
-                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger">
-                        <i class="fas fa-trash me-1"></i>Evet, Sil
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+         <!-- Delete Confirmation Modal -->
+     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered">
+             <div class="modal-content">
+                 <div class="modal-header bg-danger text-white">
+                     <h5 class="modal-title" id="deleteModalLabel">
+                         <i class="fas fa-exclamation-triangle me-2"></i>Ürün Silme Onayı
+                     </h5>
+                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                 </div>
+                 <div class="modal-body">
+                     <div class="text-center mb-3">
+                         <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+                         <h5>Bu ürünü silmek istediğinizden emin misiniz?</h5>
+                         <p class="text-muted">Bu işlem geri alınamaz.</p>
+                     </div>
+                     <div class="alert alert-warning">
+                         <i class="fas fa-info-circle me-2"></i>
+                         <strong id="productNameToDelete"></strong> adlı ürün kalıcı olarak silinecektir.
+                     </div>
+                 </div>
+                 <div class="modal-footer">
+                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                         <i class="fas fa-times me-1"></i>İptal
+                     </button>
+                     <a href="#" id="confirmDeleteBtn" class="btn btn-danger">
+                         <i class="fas fa-trash me-1"></i>Evet, Sil
+                     </a>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+     <!-- Low Stock Products Modal -->
+     <div class="modal fade" id="lowStockModal" tabindex="-1" aria-labelledby="lowStockModalLabel" aria-hidden="true">
+         <div class="modal-dialog modal-lg modal-dialog-centered">
+             <div class="modal-content">
+                 <div class="modal-header bg-warning text-dark">
+                     <h5 class="modal-title" id="lowStockModalLabel">
+                         <i class="fas fa-exclamation-triangle me-2"></i>Düşük Stok Uyarısı
+                     </h5>
+                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                 </div>
+                 <div class="modal-body">
+                     <div class="alert alert-warning mb-3">
+                         <i class="fas fa-info-circle me-2"></i>
+                         <strong><?php echo $lowStockProducts->num_rows; ?> ürün</strong> düşük stok seviyesinde bulunuyor.
+                     </div>
+                     
+                     <div class="table-responsive">
+                         <table class="table table-hover">
+                             <thead class="table-warning">
+                                 <tr>
+                                     <th>Ürün Adı</th>
+                                     <th class="text-center">Kategori</th>
+                                     <th class="text-center">Mevcut Stok</th>
+                                     <th class="text-center">Min. Stok</th>
+                                     <th class="text-center">Durum</th>
+                                     <th class="text-center">İşlem</th>
+                                 </tr>
+                             </thead>
+                             <tbody>
+                                 <?php 
+                                 // Düşük stok ürünlerini yeniden al
+                                 $lowStockProducts->data_seek(0);
+                                 while ($row = $lowStockProducts->fetch_assoc()): 
+                                     $isLow = (int)$row['stock_quantity'] <= (int)$row['min_stock_level'];
+                                     $statusClass = $isLow ? 'table-danger' : 'table-warning';
+                                     $statusText = $isLow ? 'Kritik' : 'Düşük';
+                                     $statusIcon = $isLow ? 'fas fa-exclamation-triangle text-danger' : 'fas fa-exclamation-circle text-warning';
+                                 ?>
+                                 <tr class="<?php echo $statusClass; ?>">
+                                     <td>
+                                         <strong><?php echo htmlspecialchars($row['product_name']); ?></strong>
+                                         <?php if (!empty($row['description'])): ?>
+                                         <br><small class="text-muted"><?php echo htmlspecialchars($row['description']); ?></small>
+                                         <?php endif; ?>
+                                     </td>
+                                     <td class="text-center">
+                                         <?php if ($row['category_name']): ?>
+                                         <span class="badge" style="background-color: <?php echo $row['category_color']; ?>;">
+                                             <?php echo htmlspecialchars($row['category_name']); ?>
+                                         </span>
+                                         <?php else: ?>
+                                         <span class="badge bg-secondary">Kategorisiz</span>
+                                         <?php endif; ?>
+                                     </td>
+                                     <td class="text-center">
+                                         <span class="badge bg-danger fs-6">
+                                             <?php echo (int)$row['stock_quantity']; ?> <?php echo htmlspecialchars($row['unit']); ?>
+                                         </span>
+                                     </td>
+                                     <td class="text-center">
+                                         <small class="text-muted"><?php echo (int)$row['min_stock_level']; ?> <?php echo htmlspecialchars($row['unit']); ?></small>
+                                     </td>
+                                     <td class="text-center">
+                                         <i class="<?php echo $statusIcon; ?> me-1"></i>
+                                         <?php echo $statusText; ?>
+                                     </td>
+                                     <td class="text-center">
+                                         <a class="btn btn-primary btn-sm" href="index.php?action=update&id=<?php echo (int)$row['id']; ?>">
+                                             <i class="fas fa-edit me-1"></i>Düzenle
+                                         </a>
+                                     </td>
+                                 </tr>
+                                 <?php endwhile; ?>
+                             </tbody>
+                         </table>
+                     </div>
+                     
+                     <?php if ($lowStockProducts->num_rows === 0): ?>
+                     <div class="text-center py-4">
+                         <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                         <h5 class="text-success">Harika!</h5>
+                         <p class="text-muted">Tüm ürünleriniz yeterli stok seviyesinde.</p>
+                     </div>
+                     <?php endif; ?>
+                 </div>
+                 <div class="modal-footer">
+                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                         <i class="fas fa-times me-1"></i>Kapat
+                     </button>
+                     <a href="index.php" class="btn btn-primary">
+                         <i class="fas fa-list me-1"></i>Tüm Ürünleri Görüntüle
+                     </a>
+                 </div>
+             </div>
+         </div>
+     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function showDeleteModal(productId, productName) {
-            document.getElementById('productNameToDelete').textContent = productName;
-            document.getElementById('confirmDeleteBtn').href = 'index.php?action=delete&id=' + productId;
-            
-            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
-            modal.show();
-        }
+         <script>
+         function showDeleteModal(productId, productName) {
+             document.getElementById('productNameToDelete').textContent = productName;
+             document.getElementById('confirmDeleteBtn').href = 'index.php?action=delete&id=' + productId;
+             
+             const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+             modal.show();
+         }
+         
+         function showLowStockModal() {
+             const modal = new bootstrap.Modal(document.getElementById('lowStockModal'));
+             modal.show();
+         }
         
         // Arama fonksiyonları
         let searchTimeout;

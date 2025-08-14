@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Kayıt Ol - Hanzade Cafe</title>
+    <title>Şifre Sıfırla - Hanzade Cafe</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="favicon-32x32.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -14,16 +14,16 @@
             display: flex;
             align-items: center;
         }
-        .register-card {
+        .reset-card {
             background: white;
             border-radius: 1rem;
             box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
             overflow: hidden;
         }
-        .register-header {
+        .reset-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 1.5rem;
+            padding: 2rem;
             text-align: center;
         }
         .form-control {
@@ -83,7 +83,6 @@
             height: 1px;
             background: #dee2e6;
             transform: translateY(-50%);
-            z-index: 1;
         }
         .divider span {
             background: white;
@@ -91,8 +90,8 @@
             color: #6c757d;
             font-size: 0.875rem;
             position: relative;
-            z-index: 2;
-            top: 0px;
+            z-index: 1;
+            top: 2px;
         }
         .password-strength {
             font-size: 0.875rem;
@@ -107,15 +106,19 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
-                <div class="register-card">
-                    <div class="register-header">
+                <div class="reset-card">
+                    <div class="reset-header">
                         <img src="favicon-32x32.png" alt="Hanzade Cafe" style="width: 48px; height: 48px;" class="mb-3">
                         <h3 class="mb-0">Hanzade Cafe</h3>
                         <p class="mb-0 opacity-75">Stok Yönetim Sistemi</p>
                     </div>
                     
-                    <div class="p-3 p-md-3">
-                        <h4 class="text-center mb-3">Yeni Hesap Oluştur</h4>
+                    <div class="p-4 p-md-5">
+                        <h4 class="text-center mb-4">Yeni Şifre Belirle</h4>
+                        
+                        <p class="text-muted text-center mb-4">
+                            Yeni şifrenizi belirleyin. En az 6 karakter olmalıdır.
+                        </p>
                         
                         <?php if (!empty($error)): ?>
                         <div class="alert alert-danger">
@@ -132,53 +135,25 @@
                         <?php endif; ?>
 
                         <form method="post" novalidate>
-                            <div class="form-floating mb-2">
-                                <input 
-                                    type="text" 
-                                    class="form-control" 
-                                    id="name" 
-                                    name="name" 
-                                    placeholder="Ad Soyad"
-                                    value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>"
-                                    required
-                                >
-                                <label for="name">
-                                    <i class="fas fa-user me-1"></i>Ad Soyad
-                                </label>
-                            </div>
-
-                            <div class="form-floating mb-2">
-                                <input 
-                                    type="email" 
-                                    class="form-control" 
-                                    id="email" 
-                                    name="email" 
-                                    placeholder="Email"
-                                    value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
-                                    required
-                                >
-                                <label for="email">
-                                    <i class="fas fa-envelope me-1"></i>Email Adresi
-                                </label>
-                            </div>
-
-                            <div class="form-floating mb-2">
+                            <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
+                            
+                            <div class="form-floating mb-3">
                                 <input 
                                     type="password" 
                                     class="form-control" 
                                     id="password" 
                                     name="password" 
-                                    placeholder="Şifre"
+                                    placeholder="Yeni Şifre"
                                     required
                                     minlength="6"
                                 >
                                 <label for="password">
-                                    <i class="fas fa-lock me-1"></i>Şifre
+                                    <i class="fas fa-lock me-1"></i>Yeni Şifre
                                 </label>
                                 <div class="password-strength" id="password-strength"></div>
                             </div>
 
-                            <div class="form-floating mb-2">
+                            <div class="form-floating mb-3">
                                 <input 
                                     type="password" 
                                     class="form-control" 
@@ -192,9 +167,9 @@
                                 </label>
                             </div>
 
-                            <div class="d-grid mb-4" style="padding-top: 10px;">
+                            <div class="d-grid mb-3">
                                 <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-user-plus me-2"></i>Hesap Oluştur
+                                    <i class="fas fa-key me-2"></i>Şifreyi Güncelle
                                 </button>
                             </div>
 
@@ -212,7 +187,7 @@
                         <div class="text-center mt-4">
                             <small class="text-muted">
                                 <i class="fas fa-shield-alt me-1"></i>
-                                Hesabınız güvenle korunur
+                                Güvenli şifre güncelleme
                             </small>
                         </div>
                     </div>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title><?php echo htmlspecialchars($category['name']); ?> - Hanzade Cafe</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="favicon-32x32.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -308,7 +309,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
         <div class="container">
             <a class="navbar-brand" href="index.php">
-                <i class="fas fa-coffee me-2"></i>Hanzade Cafe
+                <img src="favicon-32x32.png" alt="Hanzade Cafe" class="me-2" style="width: 24px; height: 24px;">Hanzade Cafe
             </a>
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="index.php">
@@ -367,12 +368,14 @@
             <h6 class="mb-3"><i class="fas fa-filter me-2"></i>Kategori Filtresi</h6>
             <a href="index.php" class="btn btn-outline-primary category-btn">
                 <i class="fas fa-list me-1"></i>Tümü
+                <span class="badge bg-secondary ms-1"><?php echo $allProducts->num_rows; ?></span>
             </a>
                          <?php while ($cat = $categories->fetch_assoc()): ?>
              <a href="index.php?action=category&id=<?php echo $cat['id']; ?>" 
                 class="btn btn-outline-primary category-btn category-<?php echo strtolower(str_replace(' ', '-', $cat['name'])); ?> <?php echo $cat['id'] == $category['id'] ? 'active' : ''; ?>"
                 style="border-color: <?php echo $cat['color']; ?>; color: <?php echo $cat['color']; ?>;">
                  <i class="fas fa-tag me-1"></i><?php echo htmlspecialchars($cat['name']); ?>
+                 <span class="badge ms-1" style="background-color: <?php echo $cat['color']; ?>; color: white;"><?php echo $cat['product_count']; ?></span>
              </a>
              <?php endwhile; ?>
         </div>

@@ -4,11 +4,13 @@ $basePath = dirname(dirname(__DIR__));
 require_once $basePath . '/app/Database.php';
 require_once $basePath . '/app/Product.php';
 require_once $basePath . '/app/Category.php';
+require_once $basePath . '/app/Notification.php';
 require_once $basePath . '/app/middleware/Auth.php';
 
 class ProductController {
     private $product;
     private $category;
+    private $notification;
     
     public function __construct() {
         // Authentication kontrolü
@@ -17,6 +19,7 @@ class ProductController {
         $db = Database::getInstance();
         $this->product = new Product($db->getConnection());
         $this->category = new Category($db->getConnection());
+        $this->notification = new Notification();
     }
     
     public function index() {
@@ -37,6 +40,13 @@ class ProductController {
             } else {
                 if ($this->product->updateStock($id, $sold_quantity)) {
                     $success = "Stok başarıyla güncellendi!";
+                    
+                    // Staff kullanıcısı ise bildirim oluştur
+                    if (Auth::role() === 'staff') {
+                        $product = $this->product->getById($id);
+                        $description = Auth::name() . " kullanıcısı '" . $product['product_name'] . "' ürününün stok miktarını " . $sold_quantity . " adet düşürdü.";
+                        $this->notification->create(Auth::id(), 'stock_update', 'products', $id, $description);
+                    }
                 } else {
                     $error = "Not enough stock (or invalid product).";
                 }
@@ -72,6 +82,12 @@ class ProductController {
             } else {
                 if ($this->product->updateProduct($id, $product_name, $category_id, $stock_quantity, $min_stock_level, $unit, $price, $description)) {
                     $success = "Ürün bilgileri başarıyla güncellendi!";
+                    
+                    // Staff kullanıcısı ise bildirim oluştur
+                    if (Auth::role() === 'staff') {
+                        $description = Auth::name() . " kullanıcısı '" . $product_name . "' ürününün bilgilerini güncelledi.";
+                        $this->notification->create(Auth::id(), 'update', 'products', $id, $description);
+                    }
                 } else {
                     $error = "Failed to update product.";
                 }
@@ -106,6 +122,11 @@ class ProductController {
                 $error = "Initial stock must be non-negative.";
             } else {
                 if ($this->product->addProduct($product_name, $category_id, $initial_stock, $min_stock_level, $unit, $price, $description)) {
+                    // Staff kullanıcısı ise bildirim oluştur
+                    if (Auth::role() === 'staff') {
+                        $description = Auth::name() . " kullanıcısı '" . $product_name . "' adında yeni bir ürün ekledi.";
+                        $this->notification->create(Auth::id(), 'create', 'products', $this->product->getConnection()->insert_id, $description);
+                    }
                     header("Location: index.php");
                     exit;
                 } else {
@@ -119,7 +140,15 @@ class ProductController {
     }
     
     public function delete($id) {
+        // Silmeden önce ürün bilgilerini al
+        $product = $this->product->getById($id);
+        
         if ($this->product->deleteProduct($id)) {
+            // Staff kullanıcısı ise bildirim oluştur
+            if (Auth::role() === 'staff' && $product) {
+                $description = Auth::name() . " kullanıcısı '" . $product['product_name'] . "' ürününü sildi.";
+                $this->notification->create(Auth::id(), 'delete', 'products', $id, $description);
+            }
             header("Location: index.php");
             exit;
         } else {
@@ -132,6 +161,9 @@ class ProductController {
         $products = $this->product->getByCategory($categoryId);
         $category = $this->category->getById($categoryId);
         $categories = $this->category->getAll();
+        
+        // Tüm ürünleri al (Tümü kategorisi için)
+        $allProducts = $this->product->getAll();
         
         if (!$category) {
             http_response_code(404);
