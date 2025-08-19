@@ -192,9 +192,9 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 
 ## 👨‍💻 Geliştirici
 
-**İbrahim Devran**
+**İbrahim Can Düven**
 - GitHub: [@ibrahimdvn](https://github.com/ibrahimdvn)
-- Email: ibrahim@hanzade.com
+- Email: ibrahimcanduven1@gmail.com
 
 ## 🤝 Katkıda Bulunma
 
@@ -208,7 +208,7 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 
 Proje ile ilgili sorularınız için:
 - GitHub Issues: [Proje Issues](https://github.com/ibrahimdvn/hanzade-cafe/issues)
-- Email: ibrahim@hanzade.com
+- Email: ibrahimcanduven1@gmail.com
 
 ## 🔄 Son Güncellemeler
 
